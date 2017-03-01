@@ -29,7 +29,9 @@ public class SimpleIntentService extends IntentService {
 
                 //TODO pobierz parametry, oblicz i odeślij wynik
             }
-            else if ("NAZWA_AKCJI_2".equals(action)) {
+            else if ("action.MINUS".equals(action)) {
+                double result = subtract(valueA,valueB);
+                broadcastResult(result);
 
                 //TODO pobierz parametry, oblicz i odeślij wynik
             }
@@ -40,6 +42,8 @@ public class SimpleIntentService extends IntentService {
         Intent intent = new Intent();
         intent.setAction("action.CALCULATION_RESULT");
         intent.putExtra("extra.VALUE", result);
+        intent.setAction("action.MINUS_RESULT");
+
 
         LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(this);
         broadcastManager.sendBroadcast(intent);

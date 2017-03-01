@@ -18,7 +18,7 @@ public class MainActivity extends AppCompatActivity {
     //1
     EditText fieldA;
     EditText fieldB;
-    TextView result;
+    TextView resultTextView;
     Button plusButton;
     Button minusButton;
     Button multiplyButton;
@@ -27,11 +27,15 @@ public class MainActivity extends AppCompatActivity {
 
     LocalBroadcastManager localBroadcastManager;
 
-    BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+    BroadcastReceiver broadcastReceiver = new BroadcastReceiver() { // tu sie cos dzieje 13
+
         @Override
         public void onReceive(Context context, Intent intent) {
             // TODO odbierz odpowiedź i wyświetl wynik na ekranie
-            // double result = intent.getDoubleExtra("NAZWA_POLA", 0);
+            double result = intent.getDoubleExtra("extra.VALUE", 0);
+
+            resultTextView.setText(String.valueOf(result));
+
         }
     };
 
@@ -45,18 +49,53 @@ public class MainActivity extends AppCompatActivity {
         minusButton = (Button) findViewById(R.id.button_minus);
         multiplyButton = (Button) findViewById(R.id.button_multiply);
         devideButton = (Button) findViewById(R.id.button_divide);
-        result = (TextView) findViewById(R.id.result);
+        resultTextView = (TextView) findViewById(R.id.result);
 
         plusButton.setOnClickListener(new View.OnClickListener() {//2
             @Override
             public void onClick(View v) {
+                String ValueAString = fieldA.getText().toString();
+                String ValueBString = fieldB.getText().toString();
+                double valueA;
+                double valueB;
+                if (ValueAString != null && !ValueAString.isEmpty()) {
+
+
+                    valueA = Double.valueOf(ValueAString); //4
+                }else{
+                    valueA = 0;
+                }
+                if (ValueBString != null && !ValueBString.isEmpty() ) {
+
+                    valueB = Double.valueOf(ValueBString); //4
+                }else {
+                    valueB =0;
+                }
+
+                Intent intent = new Intent(MainActivity.this, SimpleIntentService.class);//3
+                intent.setAction("action.PLUS");
+                intent.putExtra("extra.VALUE_A", valueA); //5
+                intent.putExtra("extra.VALUE_B", valueB); //5
+
+
+
+                startService(intent); //6
+
+            }
+        });
+        minusButton.setOnClickListener(new View.OnClickListener() {//2
+            @Override
+            public void onClick(View v) {
+
                 double valueA = Double.valueOf(fieldA.getText().toString()); //4
                 double valueB = Double.valueOf(fieldB.getText().toString()); //4
 
-                Intent intent = new Intent(MainActivity.this,SimpleIntentService.class);//3
-                intent.setAction("action.PLUS");
-                intent.putExtra("extra.VALUE_A",valueA); //5
-                intent.putExtra("extra.VALUE_B",valueB); //5
+                Intent intent = new Intent(MainActivity.this, SimpleIntentService.class);//3
+                intent.setAction("action.MINUS");
+                intent.putExtra("extra.VALUE_A", valueA); //5
+                intent.putExtra("extra.VALUE_B", valueB); //5
+
+
 
                 startService(intent); //6
 
@@ -64,8 +103,9 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        IntentFilter filter = new IntentFilter();
-         filter.addAction("ADD");
+        IntentFilter filter = new IntentFilter(); // pod koniec 14
+        filter.addAction("action.CALCULATION_RESULT");
+        filter.addAction("action.MINUS_RESULT");
         //TODO: wstaw nazwę akcji którą chcesz odebrać
 
         localBroadcastManager = LocalBroadcastManager.getInstance(this);
@@ -73,18 +113,20 @@ public class MainActivity extends AppCompatActivity {
 
 
         // TODO: Wysyłanie parametrów po kliknięciu na guzik
-        Intent intent = new Intent();
-        intent.setAction("ADD");
-        intent.putExtra("X", 2);
-        intent.putExtra("Y", 5);
-        localBroadcastManager.sendBroadcast(intent);
+//        Intent intent = new Intent();
+//        intent.setAction("ADD");
+//        intent.putExtra("X", 2);
+//        intent.putExtra("Y", 5);
+//        localBroadcastManager.sendBroadcast(intent);
+//    }
     }
 
 
-
-    @Override
-    protected void onDestroy() {
-        localBroadcastManager.unregisterReceiver(broadcastReceiver);
-        super.onDestroy();
+        @Override
+        protected void onDestroy () {
+            localBroadcastManager.unregisterReceiver(broadcastReceiver);
+            super.onDestroy();
+        }
     }
-}
+
+
